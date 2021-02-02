@@ -2,3 +2,9 @@ name = "MDLearn"
 uuid = "cf5f2657-9466-48ce-ab2f-80981f04b2c7"
 authors = ["casv2 <casv2@cam.ac.uk>"]
 version = "0.1.0"
+
+[deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+IPFitting = "3002bd4c-79e4-52ce-b924-91256dde4e52"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
