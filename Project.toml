@@ -1,0 +1,4 @@
+name = "MDLearn"
+uuid = "cf5f2657-9466-48ce-ab2f-80981f04b2c7"
+authors = ["casv2 <casv2@cam.ac.uk>"]
+version = "0.1.0"
