@@ -5,7 +5,7 @@ fs = 0.09822694788464063
 
 using JuLIP, Distributions, LinearAlgebra
 
-export Stationary, VelocityVerlet, Zmethod, MaxwellBoltzmann_scale
+export Stationary, VelocityVerlet, MaxwellBoltzmann_scale
 
 function MaxwellBoltzmann(at::Atoms, T::Int)
     d = Normal()

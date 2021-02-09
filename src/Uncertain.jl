@@ -1,9 +1,8 @@
-using IPFitting, LinearAlgebra
+module Uncertain
 
+using IPFitting, LinearAlgebra, Distributions, Statistics
 
-function uncertain_forces(B, at, S, c)
-    return sum(c .* ((S) * forces(B, at)) )
-end
+export do_brr, posterior
 
 function do_brr(Ψ, Y, α, β, n)
     m, S = posterior(Ψ, Y, α, β)
@@ -24,3 +23,4 @@ function posterior(Ψ, Y, α, β; return_inverse=false)
     end
 end
 
+end
