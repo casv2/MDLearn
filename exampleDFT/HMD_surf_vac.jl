@@ -80,7 +80,7 @@ function do_fit(al, R)
     
     Bsite = rpi_basis(species = :Ti,
           N = 3,                       # correlation order = body-order - 1
-          maxdeg = 12,            # polynomial degree
+          maxdeg = 10,            # polynomial degree
           r0 = r0,                      # estimate for NN distance
           #D = SparsePSHDegree(; wL=1.3, csp=1.0),
           rin = R, rcut = 5.5,   # domain for radial basis (cf documentation) #5.5
@@ -91,7 +91,7 @@ function do_fit(al, R)
         "default" => Dict("E" => 15.0, "F" => 1.0 , "V" => 1.0 ),
         )
 
-    Vref = OneBody(:Ti => -5.817622899211898)
+    Vref = OneBody(:Ti => -1586.0195)
 
     B = JuLIP.MLIPs.IPSuperBasis([Bpair, Bsite]);
     
@@ -101,26 +101,20 @@ function do_fit(al, R)
                                 Vref=Vref, Ibasis = :,Itrain = :,
                                 weights=weights, regularisers = [])
     
-    c_samples = MDLearn.Uncertain.do_brr(Ψ, Y, 20.0, 5.0, 5);
-
-    # c_samples = []
-
-    # for a in [1e-10, 1e-11, 1e-12]
-    #     IP, lsqinfo = lsqfit(dB, solver=(:rrqr, a), weights = weights, Vref = Vref, asmerrs=true);
-    #     @show a
-    #     rmse_table(lsqinfo["errors"])
-    #     c = lsqinfo["c"] #.+ (1e-12*randn(length(lsqinfo["c"])))
-    #     push!(c_samples, c)
-    # end
-
-    IP, lsqinfo = lsqfit(dB, solver=(:rrqr, 1e-8), weights = weights, Vref = Vref, asmerrs=true);
+    c_samples = MDLearn.Uncertain.do_brr(Ψ, Y, 100.0, 1.0, 5);
+    
+    IP = JuLIP.MLIPs.SumIP(Vref, JuLIP.MLIPs.combine(B, c_samples[:,1]))
 
     add_fits_serial!(IP, al, fitkey="IP")
     rmse_, rmserel_ = rmse(al; fitkey="IP");
     rmse_table(rmse_, rmserel_)
     
-    return IP, B, hcat(c_samples...)
+    return IP, B, c_samples
 end
+
+al = IPFitting.Data.read_xyz(@__DIR__() * "/DFT_Ti_FLD_PH_bcc_hcp.xyz", energy_key="energy", force_key="force", virial_key="virial");
+R = minimum(IPFitting.Aux.rdf(al, 4.0))
+IP, B, c_samples = do_fit(al, R)
 
 init_ats = IPFitting.Data.read_xyz(@__DIR__() * "/HMD_init_hcp_bcc_vac_surf.xyz")
 iters = 5
@@ -131,15 +125,15 @@ for j in 1:length(init_ats)
     if config_type in ["bcc","hcp"]
         temp = 6050 #6050
         dt = 1.0 #0.5
-        τ = 5e20
+        τ = 0.005
     elseif config_type in ["bcc_surf", "bcc_vac"]
         temp = 3050 #2050
         dt = 1.0 #1.0
-        τ = 1e-10
+        τ = 0.001
     elseif config_type in ["hcp_surf", "hcp_vac"]
         temp = 2050 #2050
         dt = 1.0 #1.0
-        τ = 1e-10
+        τ = 0.001
     end
     for l in 1:iters
         init_config = deepcopy(init_at)
